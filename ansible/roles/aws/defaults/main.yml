@@ -1,0 +1,6 @@
+---
+
+amazon_ec2_utils:
+  - "ec2udev-vbd"
+  - "ec2nvme-nsid" 
+  - "ebsnvme-id"

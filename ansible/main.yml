@@ -1,0 +1,7 @@
+---
+- name: 'Provision debian enhanced Image'
+  hosts: default
+  become: true
+  roles:
+    - enhanced
+    - aws

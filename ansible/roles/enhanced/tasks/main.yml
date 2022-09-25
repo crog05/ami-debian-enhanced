@@ -1,0 +1,65 @@
+---
+
+# timezone à paris
+- name: set timezone fr
+  timezone:
+    name: Europe/Paris
+
+# set locales FR
+- name: set defaults locales
+  locale_gen:
+    name: fr_FR.UTF-8
+    state: present
+
+# Set MOTD
+- name: Set Message Of The Day
+  copy:
+    src: motd
+    dest: /etc/motd
+    mode: 0444
+    owner: root
+    group: root
+
+#add contrib
+- name: add contrib to std source
+  lineinfile:
+    path: /etc/apt/sources.list
+    regexp: '^deb (.*) main$'
+    line: 'deb \1 main contrib'
+    backrefs: yes
+  register: replace
+  until: replace.changed is false
+  ignore_errors: yes
+
+# Upgrade all packages
+- name: apt upgrade
+  apt:
+    update_cache: true
+    force_apt_get: true
+    upgrade: full
+  register: apt_action
+  retries: 20
+  delay: 10
+  until: apt_action is success
+
+# Install latest version of our package list
+- name: install default packages
+  apt:
+    name: "{{ pkg_default_list }}"
+    state: latest
+  register: apt_action
+  retries: 20
+  delay: 10
+  until: apt_action is success
+
+# clean cloud init logs
+- name: Clean previous Cloud-init logs
+  command:
+    cmd: cloud-init clean --logs
+    removes: /var/log/cloud-init.log
+
+# clean cloud init runs
+- name: Clean previous Cloud-init runs
+  command:
+    cmd: cloud-init clean
+    removes: /var/lib/cloud/instance

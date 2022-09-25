@@ -1,0 +1,51 @@
+---
+# Download/Update aws cli v2 installer, as SSM agent is manually installed from previous manually built image
+- name: setup SSM package from AWS
+  apt:
+    deb: "https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_arm64/amazon-ssm-agent.deb"
+    state: present
+
+# This service should be up and enabled
+- name: service ssm
+  service:
+    name: amazon-ssm-agent
+    state: started
+    enabled: true
+
+- name: git destination
+  ansible.builtin.file:
+    path: /root/aws
+    state: directory
+
+- name: Git checkout
+  ansible.builtin.git:
+    repo: 'https://github.com/amazonlinux/amazon-ec2-utils'
+    dest: /root/aws
+    version: main
+
+- name: list rules
+  ansible.builtin.find: 
+    paths: /root/aws/
+    file_type: file
+    patterns: "*.rules"
+  register: find
+
+- name: Copy each rules file
+  copy:
+    remote_src: yes
+    src: "{{ item.path }}"
+    dest: "/etc/udev/rules.d/"
+    owner: "root"
+    group: "root"
+    mode: 0644
+  with_list: "{{ find.files }}"
+
+- name: copy ebsnvme-id
+  copy:
+    remote_src: yes
+    src: "/root/aws/{{ item }}"
+    dest: /usr/sbin/{{ item }}
+    owner: root
+    group: root
+    mode: '0755'
+  with_items: "{{ amazon_ec2_utils }}"

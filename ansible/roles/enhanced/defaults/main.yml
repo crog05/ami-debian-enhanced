@@ -1,0 +1,26 @@
+pkg_default_list:
+  - tzdata
+  - procps
+  - apt-transport-https
+  - ca-certificates
+  - xz-utils
+  - unzip
+  - procps
+  - htop
+  - tree
+  - dnsutils
+  - gnupg
+  - curl
+  - git
+  - wget
+  - nfs-common
+  - nvme-cli
+  - python3-pip
+  - python3-docker
+  - python3-boto3
+  - python3-dateutil
+  - mailutils
+  - tcpdump
+  - awscli
+  - iotop
+  - lsof
